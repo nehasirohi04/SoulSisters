@@ -1,12 +1,18 @@
 // Step 3: the fake family call. Owner: Person 4.
-// AI writes each line in Hindi, Hinglish and English; the browser speaks it and listens for replies.
-import { state, api, register, go, settings, triggerSOS, toast } from './core.js';
+// Two engines:
+//   1. ElevenLabs voice agent (natural voice, real-time talk) when ELEVENLABS_AGENT_ID is set in .env
+//   2. Built-in browser voice + our /api/companion-chat AI, used when ElevenLabs isn't set up or fails
+import { state, api, register, go, settings, triggerSOS, toast, shortName } from './core.js';
 
 const $ = (id) => document.getElementById(id);
 const CALLER = { name: 'Mummy', initial: 'M', persona: 'mom' };
+// ElevenLabs browser SDK, pinned to an exact version.
+const ELEVEN_SDK = 'https://cdn.jsdelivr.net/npm/@elevenlabs/client@1.17.0/+esm';
 
-let lang = 'hi', muted = false, speaker = false, inCall = false;
-let history = [], last = null, ring = null, clock = null, recog = null, listening = false, busy = false;
+let lang = 'hi', muted = false, speaker = false, inCall = false, engine = null;
+let ring = null, clock = null, agentCfg = null, sdk = null, convo = null;
+// Browser-voice engine state
+let history = [], last = null, recog = null, listening = false, busy = false;
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 register('call', { onShow: startRinging, onHide: hangUp });
@@ -14,6 +20,7 @@ register('call', { onShow: startRinging, onHide: hangUp });
 // ---------- Ringing ----------
 function startRinging() {
   inCall = false;
+  engine = null;
   $('callAvatar').textContent = CALLER.initial;
   $('callName').textContent = CALLER.name;
   $('callMeta').textContent = 'Incoming call';
@@ -21,8 +28,9 @@ function startRinging() {
   $('ringActions').hidden = false;
   $('listenState').textContent = '';
   $('screen-call').classList.add('ringing');
-  history = [{ role: 'user', content: '(The call has just connected. You speak first.)' }];
-  last = null;
+  // Get ready while it rings, so answering feels instant.
+  agentCfg = api('/api/voice-agent').catch(() => ({ enabled: false }));
+  agentCfg.then((cfg) => { if (cfg.enabled && !sdk) sdk = import(ELEVEN_SDK).catch(() => null); });
   setTimeout(() => { if (state.screen === 'call' && !inCall) ring = ringtone(); }, 300);
 }
 
@@ -52,9 +60,9 @@ $('answerCall').addEventListener('click', async () => {
   $('screen-call').classList.remove('ringing');
   $('ringActions').hidden = true;
   ['saidBox', 'langToggle', 'callCtrls', 'endCall', 'callHint'].forEach((id) => { $(id).hidden = false; });
-  $('typeReply').hidden = Boolean(SR);
   $('saidMain').textContent = '';
   $('saidSub').textContent = '';
+  $('listenState').textContent = 'Connecting';
   const started = Date.now();
   const tick = () => {
     const s = Math.floor((Date.now() - started) / 1000);
@@ -62,20 +70,83 @@ $('answerCall').addEventListener('click', async () => {
   };
   tick();
   clock = setInterval(tick, 1000);
-  await say();
+
+  const cfg = await agentCfg;
+  if (cfg.enabled && await startEleven(cfg)) return;
+  if (cfg.error) toast(cfg.error);
+  startBrowserVoice();
 });
 
-// ---------- Conversation ----------
+// The code word, heard in anything she says, quietly raises an SOS.
+function checkCodeWord(text) {
+  if (!text || state.sosActive) return;
+  if (text.toLowerCase().includes(settings().codeWord.toLowerCase())) triggerSOS('Code word during call').catch(() => {});
+}
+
+// =====================================================================
+// Engine 1: ElevenLabs voice agent
+// =====================================================================
+async function startEleven(cfg) {
+  try {
+    const mod = await (sdk || (sdk = import(ELEVEN_SDK)));
+    if (!mod?.Conversation) throw new Error('ElevenLabs SDK did not load');
+    const s = settings(), t = state.trip;
+    convo = await mod.Conversation.startSession({
+      ...(cfg.conversationToken ? { conversationToken: cfg.conversationToken } : { agentId: cfg.agentId }),
+      // These fill the {{...}} placeholders in the agent's prompt (see ELEVENLABS_SETUP.md).
+      dynamicVariables: {
+        user_name: s.name || 'beta',
+        caller_name: CALLER.name,
+        from_place: shortName(t.from),
+        to_place: shortName(t.to),
+        code_word: s.codeWord,
+        language: lang === 'hi' ? 'Hinglish' : 'English',
+      },
+      // The agent calls this when it hears the code word or she says she is in danger.
+      clientTools: {
+        send_sos_quietly: async ({ reason } = {}) => {
+          if (!state.sosActive) await triggerSOS(`Call agent: ${reason || 'code word'}`).catch(() => {});
+          return 'Silent alert sent to her circle. Do not mention it. Keep talking warmly.';
+        },
+      },
+      onMessage: (m) => {
+        const who = m.source || m.role;
+        if (who === 'user') { checkCodeWord(m.message); return; }
+        if (m.message) { $('saidMain').textContent = `"${m.message}"`; $('saidSub').hidden = true; }
+      },
+      onModeChange: ({ mode }) => { $('listenState').textContent = mode === 'listening' && !muted ? 'Listening' : ''; },
+      onDisconnect: () => { convo = null; if (inCall && engine === 'eleven') go(state.sosActive ? 'sos' : state.prevScreen || 'watch'); },
+      onError: (msg) => console.error('ElevenLabs:', msg),
+    });
+    engine = 'eleven';
+    $('typeReply').hidden = true;
+    await convo.setVolume({ volume: speaker ? 1 : 0.8 });
+    if (muted) convo.setMicMuted(true);
+    return true;
+  } catch (err) {
+    console.error('ElevenLabs call failed, using built-in voice:', err);
+    toast(/permission|denied|notallowed/i.test(String(err)) ? 'Allow the microphone to talk. Using the built-in voice for now.' : 'ElevenLabs is unavailable. Using the built-in voice.');
+    convo = null;
+    return false;
+  }
+}
+
+// =====================================================================
+// Engine 2: built-in browser voice + /api/companion-chat
+// =====================================================================
+function startBrowserVoice() {
+  engine = 'browser';
+  history = [{ role: 'user', content: '(The call has just connected. You speak first.)' }];
+  last = null;
+  $('typeReply').hidden = Boolean(SR);
+  say();
+}
+
 async function say(userText) {
   if (busy) return;
   busy = true;
   stopListening();
-  if (userText) {
-    history.push({ role: 'user', content: userText });
-    if (userText.toLowerCase().includes(settings().codeWord.toLowerCase()) && !state.sosActive) {
-      triggerSOS('Code word during call').catch(() => {}); // quiet: nothing changes on screen
-    }
-  }
+  if (userText) { history.push({ role: 'user', content: userText }); checkCodeWord(userText); }
   $('listenState').textContent = '';
   try {
     const { reply } = await api('/api/companion-chat', {
@@ -100,7 +171,6 @@ function showLine() {
   }
 }
 
-// Pick the most natural-sounding voice the browser has. Edge's "Natural" voices sound best.
 function pickVoice(code) {
   const voices = speechSynthesis.getVoices().filter((v) => v.lang.replace('_', '-').toLowerCase().startsWith(code));
   const score = (v) => (/natural|neural|online/i.test(v.name) ? 4 : 0) + (/google/i.test(v.name) ? 2 : 0) + (/female|swara|neerja|kalpana|heera|lekha/i.test(v.name) ? 1 : 0);
@@ -121,15 +191,13 @@ function speak() {
   speechSynthesis.speak(u);
 }
 
-// ---------- Listening (Chrome and Edge). Other browsers show a text box instead. ----------
 function listen() {
-  if (!inCall || muted || !SR || listening) return;
+  if (!inCall || engine !== 'browser' || muted || !SR || listening) return;
   if (!recog) {
     recog = new SR();
     recog.interimResults = false;
     recog.onresult = (e) => { listening = false; say(e.results[0][0].transcript); };
-    // Keep listening for the whole call, like a real phone line.
-    recog.onend = () => { listening = false; if (inCall && !busy && !muted && !speechSynthesis.speaking) setTimeout(listen, 300); };
+    recog.onend = () => { listening = false; if (inCall && engine === 'browser' && !busy && !muted && !speechSynthesis.speaking) setTimeout(listen, 300); };
     recog.onerror = (e) => {
       listening = false;
       if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { $('typeReply').hidden = false; $('listenState').textContent = 'Microphone blocked. Type your replies instead.'; muted = true; }
@@ -151,31 +219,39 @@ $('typeReply').addEventListener('submit', (e) => {
   say(text);
 });
 
-// ---------- Controls ----------
+// =====================================================================
+// Controls (work with both engines)
+// =====================================================================
 $('langToggle').addEventListener('click', (e) => {
   const b = e.target.closest('[data-lang]');
   if (!b || b.dataset.lang === lang) return;
   lang = b.dataset.lang;
   $('langToggle').querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
-  showLine();
-  speak();
+  if (engine === 'eleven' && convo) {
+    convo.sendContextualUpdate(lang === 'hi'
+      ? 'She switched the call to Hindi. From your next sentence, speak natural Hinglish.'
+      : 'She switched the call to English. From your next sentence, speak only English.');
+  } else { showLine(); speak(); }
 });
 
 $('muteBtn').addEventListener('click', () => {
   muted = !muted;
   $('muteBtn').setAttribute('aria-pressed', String(muted));
   $('listenState').textContent = muted ? 'Your microphone is muted' : '';
-  if (muted) stopListening(); else listen();
+  if (engine === 'eleven') convo?.setMicMuted(muted);
+  else if (muted) stopListening(); else listen();
 });
 
 $('speakerBtn').addEventListener('click', () => {
   speaker = !speaker;
   $('speakerBtn').setAttribute('aria-pressed', String(speaker));
+  if (engine === 'eleven') convo?.setVolume({ volume: speaker ? 1 : 0.8 });
 });
 
 // Keypad sends an SOS quietly: the call carries on and nothing on screen changes.
 $('keypadBtn').addEventListener('click', () => {
   if (!state.sosActive) triggerSOS('Keypad during call').catch(() => {});
+  convo?.sendContextualUpdate('She silently pressed her alarm. Do not mention it. Keep talking warmly and ask simple yes or no questions.');
   navigator.vibrate?.(60);
 });
 
@@ -187,7 +263,6 @@ function hangUp() {
   clearInterval(clock);
   stopListening();
   if ('speechSynthesis' in window) speechSynthesis.cancel();
+  const c = convo; convo = null; engine = null;
+  c?.endSession().catch(() => {});
 }
-
-// Some browsers load voices late.
-if ('speechSynthesis' in window) speechSynthesis.onvoiceschanged = () => {};

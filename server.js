@@ -18,6 +18,7 @@ if (fs.existsSync(envPath)) {
 const matching = require('./server/matching'); // Person 2
 const trips = require('./server/trips');       // Person 3
 const ai = require('./server/ai');             // Person 4
+const voiceAgent = require('./server/voice-agent'); // Person 4
 
 const PORT = process.env.PORT || 3000;
 const PUBLIC = path.join(__dirname, 'public');
@@ -64,7 +65,7 @@ const server = http.createServer(async (req, res) => {
     if (url.pathname.startsWith('/api/')) {
       const body = req.method === 'POST' ? await readBody(req) : {};
       const ctx = { req, url, body, send: (status, data) => sendJson(res, status, data) };
-      const handled = (await matching.handle(ctx)) || (await trips.handle(ctx)) || (await ai.handle(ctx));
+      const handled = (await matching.handle(ctx)) || (await trips.handle(ctx)) || (await ai.handle(ctx)) || (await voiceAgent.handle(ctx));
       if (!handled) sendJson(res, 404, { error: `No API route for ${req.method} ${url.pathname}` });
       return;
     }
@@ -80,4 +81,7 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(process.env.AI_API_KEY
     ? `AI companion: live via ${process.env.AI_BASE_URL || 'https://api.routerplus.com'} (model ${process.env.AI_MODEL || 'claude-haiku-4-5'})`
     : 'AI companion: offline demo lines (add AI_API_KEY to .env for live calls)');
+  console.log(process.env.ELEVENLABS_AGENT_ID
+    ? `Family call: ElevenLabs agent ${process.env.ELEVENLABS_AGENT_ID}${process.env.ELEVENLABS_API_KEY ? ' (private, token from server)' : ' (public)'}`
+    : 'Family call: built-in browser voice (add ELEVENLABS_AGENT_ID to .env for ElevenLabs)');
 });
