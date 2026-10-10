@@ -18,7 +18,10 @@ if (fs.existsSync(envPath)) {
 const matching = require('./server/matching'); // Person 2
 const trips = require('./server/trips');       // Person 3
 const ai = require('./server/ai');             // Person 4
+
 const voiceAgent = require('./server/voice-agent'); // Person 4
+const auth = require('./server/auth');         // Sign-in
+
 
 const PORT = process.env.PORT || 3000;
 const PUBLIC = path.join(__dirname, 'public');
@@ -65,7 +68,9 @@ const server = http.createServer(async (req, res) => {
     if (url.pathname.startsWith('/api/')) {
       const body = req.method === 'POST' ? await readBody(req) : {};
       const ctx = { req, url, body, send: (status, data) => sendJson(res, status, data) };
-      const handled = (await matching.handle(ctx)) || (await trips.handle(ctx)) || (await ai.handle(ctx)) || (await voiceAgent.handle(ctx));
+
+      const handled = (await auth.handle(ctx)) || (await matching.handle(ctx)) || (await trips.handle(ctx)) || (await ai.handle(ctx)) || (await voiceAgent.handle(ctx));
+
       if (!handled) sendJson(res, 404, { error: `No API route for ${req.method} ${url.pathname}` });
       return;
     }

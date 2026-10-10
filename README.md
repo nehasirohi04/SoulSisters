@@ -21,6 +21,17 @@ Open http://localhost:3000 in Chrome or Edge. Without an API key, the call uses 
 
 The voice is the browser's built-in voice. **Microsoft Edge sounds most natural** because it has free "Natural" Hindi and Indian English voices.
 
+## Sign in
+
+The first time you open the app, you sign in:
+
+1. Enter a 10-digit mobile number and tap **Send OTP**.
+2. Enter the 6-digit code. There is no SMS yet, so the code is shown on screen and printed in the server console.
+3. Add your first name and take a live selfie.
+4. Add at least one person to your trusted circle.
+
+After that the app opens straight away. Restarting the server signs everyone out. The tracking link in `track.html` does not need sign-in, so family can open it without an account.
+
 ## Demo script (3 minutes)
 
 1. Airport to Indiranagar at 11:30 PM. Tap **Find travel companions**: Ananya and Sneha match. Tap **Travel together** with Ananya.
@@ -41,6 +52,7 @@ Tap **Edit** next to "Your trusted circle" to add people with their WhatsApp num
 | 2 | Travel together | `server/matching.js`, `server/areas.js`, `data/companions.json`, `public/js/companions.js` |
 | 3 | Live location, circle, check-in, SOS, tracker page | `server/trips.js`, `public/js/sharing.js`, `public/js/watch.js`, `public/js/sos.js`, `public/track.html`, `public/js/track.js` |
 | 4 | Fake family call | `server/ai.js`, `public/js/call.js` |
+| Sign-in | Phone + OTP, identity check, first circle | `server/auth.js`, `public/auth.html`, `public/css/auth.css`, `public/js/auth.js`, `public/js/auth-guard.js` |
 
 `core.js` and `index.html` are shared. Tell the team before changing them.
 
@@ -48,4 +60,4 @@ Tap **Edit** next to "Your trusted circle" to add people with their WhatsApp num
 
 Real: trips, live location (GPS or simulated), per-contact tracking links that show who is watching, the stopped-moving check-in, SOS and "seen by", audio recording during SOS, the safe PIN, the AI call with Hindi/English, voice input in Chrome/Edge, the code word and the Keypad SOS.
 
-Mocked for the hackathon (marked "Demo" in the app): companion profiles and their replies, nearby women joining, and the police station call. There are no accounts or ID checks, and data resets when the server restarts.
+Mocked for the hackathon (marked "Demo" in the app): companion profiles and their replies, nearby women joining, and the police station call. Sign-in uses real one-time codes and sessions, but the SMS, DigiLocker link and selfie match are demo only (the selfie never leaves the phone). Accounts, sessions and trips reset when the server restarts.
