@@ -1,0 +1,8 @@
+{
+  "name": "soulsisters",
+  "version": "0.1.0",
+  "description": "No woman travels alone: travel companions, a trusted circle watching live, and a family call when it matters.",
+  "private": true,
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=18" }
+}

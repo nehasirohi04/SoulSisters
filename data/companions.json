@@ -1,0 +1,17 @@
+[
+  { "id": "c1", "name": "Ananya", "from": "Kempegowda Airport, Terminal 1", "to": "Indiranagar", "time": "23:20", "verified": true, "trips": 34, "meetAt": "Arrival gate 4, near the cab pickup" },
+  { "id": "c2", "name": "Sneha", "from": "Kempegowda Airport, Terminal 1", "to": "Domlur", "time": "23:45", "verified": true, "trips": 19, "meetAt": "BMTC Vayu Vajra bus bay" },
+  { "id": "c3", "name": "Fatima", "from": "Kempegowda Airport, Terminal 1", "to": "Whitefield", "time": "21:10", "verified": true, "trips": 21, "meetAt": "Arrival gate 4, near the cab pickup" },
+  { "id": "c4", "name": "Meera", "from": "Koramangala", "to": "HSR Layout", "time": "22:00", "verified": true, "trips": 12, "meetAt": "Forum Mall main gate" },
+  { "id": "c5", "name": "Tanvi", "from": "Koramangala", "to": "BTM Layout", "time": "22:20", "verified": true, "trips": 5, "meetAt": "Forum Mall main gate" },
+  { "id": "c6", "name": "Fatima", "from": "BTM Layout", "to": "HSR Layout", "time": "22:15", "verified": true, "trips": 21, "meetAt": "BTM bus stop" },
+  { "id": "c7", "name": "Kavya", "from": "Indiranagar", "to": "Marathahalli", "time": "21:30", "verified": true, "trips": 48, "meetAt": "Indiranagar metro station, exit A" },
+  { "id": "c8", "name": "Simran", "from": "MG Road", "to": "Indiranagar", "time": "22:30", "verified": false, "trips": 3, "meetAt": "MG Road metro station" },
+  { "id": "c9", "name": "Divya", "from": "Whitefield", "to": "Marathahalli", "time": "20:15", "verified": true, "trips": 27, "meetAt": "Whitefield bus depot" },
+  { "id": "c10", "name": "Pooja", "from": "Electronic City", "to": "HSR Layout", "time": "19:45", "verified": true, "trips": 15, "meetAt": "Infosys gate 1 bus stop" },
+  { "id": "c11", "name": "Sneha", "from": "Bellandur", "to": "Koramangala", "time": "21:00", "verified": true, "trips": 19, "meetAt": "Ecospace main gate" },
+  { "id": "c12", "name": "Aisha", "from": "Hebbal", "to": "Yeshwanthpur", "time": "22:00", "verified": true, "trips": 9, "meetAt": "Hebbal flyover bus stop" },
+  { "id": "c13", "name": "Lakshmi", "from": "Jayanagar", "to": "BTM Layout", "time": "21:15", "verified": true, "trips": 40, "meetAt": "Jayanagar 4th Block bus stand" },
+  { "id": "c14", "name": "Riya", "from": "Majestic Bus Stand", "to": "Jayanagar", "time": "22:45", "verified": true, "trips": 7, "meetAt": "Platform 1 entrance" },
+  { "id": "c15", "name": "Harini", "from": "Majestic Bus Stand", "to": "Hebbal", "time": "23:00", "verified": true, "trips": 31, "meetAt": "Platform 1 entrance" }
+]

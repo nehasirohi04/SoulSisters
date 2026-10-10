@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#F4F6F5">
+  <title>SoulSisters</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<div class="phone">
+
+  <!-- 1 Plan trip. Owner: Person 1 -->
+  <section class="screen" id="screen-home">
+    <header class="bar">
+      <div class="logo">SoulSisters</div>
+      <button class="sos-btn" type="button" data-sos aria-label="SOS">SOS</button>
+    </header>
+    <button class="live-pill" type="button" id="livePill" data-go="watch" hidden><span class="live-dot"></span>You're sharing live. Open your trip</button>
+    <h1 class="title">Where are you headed?</h1>
+    <p class="sub">We will find someone to travel with you.</p>
+
+    <form class="trip-card" id="tripForm" autocomplete="off">
+      <label class="field"><span class="mark hollow" aria-hidden="true"></span>
+        <span class="field-body"><span class="field-label">From</span><input name="from" list="places" required></span></label>
+      <label class="field"><span class="mark solid" aria-hidden="true"></span>
+        <span class="field-body"><span class="field-label">To</span><input name="to" list="places" required></span></label>
+      <label class="field"><svg class="mark-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        <span class="field-body"><span class="field-label">When, today</span><input name="time" type="time" value="23:30" required></span></label>
+      <datalist id="places"></datalist>
+    </form>
+
+    <button class="btn primary big" type="submit" form="tripForm" value="companions">Find travel companions</button>
+    <button class="btn outline" type="submit" form="tripForm" value="watch">Just share my trip with my circle</button>
+
+    <div class="row-head">
+      <h2>Your trusted circle</h2>
+      <button class="link" type="button" id="editCircle">Edit</button>
+    </div>
+    <div class="circle" id="circleRow"></div>
+
+    <div class="grow"></div>
+    <nav class="steps" data-current="1" aria-label="Safety steps"></nav>
+  </section>
+
+  <!-- 2 Travel together. Owner: Person 2 -->
+  <section class="screen" id="screen-companions" hidden>
+    <header class="bar">
+      <button class="back" type="button" data-go="home" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <button class="sos-btn" type="button" data-sos aria-label="SOS">SOS</button>
+    </header>
+    <p class="eyebrow">STEP 1 · TRAVEL TOGETHER</p>
+    <h1 class="title sm" id="matchTitle">Looking for women on your route</h1>
+    <p class="sub" id="matchSub"></p>
+    <div class="cards" id="matchList"></div>
+    <div class="note">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/></svg>
+      <p>Meet only at public points. Your circle can see who you travel with.</p>
+    </div>
+    <div class="grow"></div>
+    <button class="btn outline" type="button" data-go="watch">No match? Share trip with my circle</button>
+    <nav class="steps" data-current="1" aria-label="Safety steps"></nav>
+  </section>
+
+  <!-- 3 Circle watching. Owner: Person 3 -->
+  <section class="screen map-screen" id="screen-watch" hidden>
+    <div class="map-full" id="map"></div>
+    <header class="bar floating">
+      <button class="back round" type="button" data-go="home" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <button class="sos-btn" type="button" data-sos aria-label="SOS">SOS</button>
+    </header>
+    <div class="route-pill"><span class="live-dot"></span><span id="routeStatus">Starting live location</span></div>
+    <div class="grow"></div>
+    <div class="sheet">
+      <div class="handle"></div>
+      <p class="eyebrow">STEP 2 · BEING WATCHED OVER</p>
+      <h1 class="title xs" id="watchTitle">Send your live link to your circle</h1>
+      <p class="with" id="withLine" hidden></p>
+      <div class="chips" id="watchChips"></div>
+      <div class="card checkin" id="checkin" hidden>
+        <p class="card-title">Are you okay?</p>
+        <p class="card-text">You stopped moving for a while. If you do not reply in <strong id="checkinCount">30</strong> seconds, your circle will be alerted.</p>
+        <div class="pair">
+          <button class="btn primary sm" type="button" id="imOkay">I am okay</button>
+          <button class="btn outline sm" type="button" data-call>Get a call</button>
+        </div>
+      </div>
+      <button class="btn dark" type="button" data-call>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2"/></svg>
+        Feeling uneasy? Get a call</button>
+      <button class="btn ghost" type="button" id="stopShare">Stop sharing</button>
+    </div>
+  </section>
+
+  <!-- 4 Fake family call. Owner: Person 4 -->
+  <section class="screen call-screen" id="screen-call" hidden>
+    <div class="avatar xl" id="callAvatar">M</div>
+    <h1 class="caller" id="callName">Mummy</h1>
+    <p class="call-meta" id="callMeta">Incoming call</p>
+
+    <div class="said" id="saidBox" hidden>
+      <p class="said-label">SHE IS SAYING</p>
+      <p class="said-main" id="saidMain" aria-live="polite"></p>
+      <p class="said-sub" id="saidSub"></p>
+    </div>
+    <div class="lang" id="langToggle" hidden>
+      <button type="button" data-lang="hi" aria-pressed="true">Hindi</button>
+      <button type="button" data-lang="en" aria-pressed="false">English</button>
+    </div>
+    <p class="listen" id="listenState"></p>
+    <form class="type-reply" id="typeReply" hidden>
+      <input id="typeInput" placeholder="Type what you'd say" aria-label="Your reply">
+      <button type="submit">Send</button>
+    </form>
+
+    <div class="grow"></div>
+    <div class="ctrls" id="callCtrls" hidden>
+      <button type="button" id="muteBtn" aria-pressed="false"><span><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg></span>Mute</button>
+      <button type="button" id="speakerBtn" aria-pressed="false"><span><svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9a4 4 0 010 6"/></svg></span>Speaker</button>
+      <button type="button" id="keypadBtn"><span><svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="1"/><circle cx="12" cy="6" r="1"/><circle cx="18" cy="6" r="1"/><circle cx="6" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="18" cy="12" r="1"/><circle cx="6" cy="18" r="1"/><circle cx="12" cy="18" r="1"/><circle cx="18" cy="18" r="1"/></svg></span>Keypad</button>
+    </div>
+    <div class="ring-actions" id="ringActions">
+      <button type="button" class="round-btn end" id="declineCall" aria-label="Decline"><svg viewBox="0 0 24 24"><path d="M3 14c5-5 13-5 18 0l-2 3-4-1v-3a10 10 0 00-6 0v3l-4 1z"/></svg></button>
+      <button type="button" class="round-btn answer" id="answerCall" aria-label="Answer"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2"/></svg></button>
+    </div>
+    <button type="button" class="round-btn end" id="endCall" aria-label="End call" hidden><svg viewBox="0 0 24 24"><path d="M3 14c5-5 13-5 18 0l-2 3-4-1v-3a10 10 0 00-6 0v3l-4 1z"/></svg></button>
+    <p class="call-hint" id="callHint" hidden>Say your code word or tap Keypad to send SOS quietly</p>
+  </section>
+
+  <!-- 5 SOS active. Owner: Person 3 -->
+  <section class="screen sos-screen" id="screen-sos" hidden>
+    <div class="sos-head">
+      <p class="sos-tag"><span class="dot-white"></span><span id="sosTag">SOS ACTIVE · SHARING LIVE</span></p>
+      <h1 id="sosTitle">Help is on the way</h1>
+      <p id="sosText">Your location is being sent every few seconds.</p>
+      <button class="btn on-orange" type="button" id="sosCancel" hidden>Cancel</button>
+    </div>
+    <div class="pad">
+      <p class="label">WHO HAS BEEN ALERTED</p>
+      <div class="alert-row">
+        <span class="status-icon" id="circleIcon"></span>
+        <div><p class="row-title">Your trusted circle</p><p class="row-text" id="circleStatus">Sending</p></div>
+      </div>
+      <div class="alert-row">
+        <span class="status-icon" id="womenIcon"></span>
+        <div><p class="row-title">Nearby verified women <span class="demo-tag">Demo</span></p><p class="row-text" id="womenStatus">Finding women nearby</p></div>
+      </div>
+      <div class="alert-row">
+        <span class="status-icon" id="policeIcon"></span>
+        <div><p class="row-title">Nearest police station <span class="demo-tag">Demo</span></p><p class="row-text" id="policeStatus">Looking up</p></div>
+      </div>
+      <p class="saved-audio" id="audioLink" hidden></p>
+    </div>
+    <div class="grow"></div>
+    <div class="pad bottom">
+      <a class="btn dark big" href="tel:112">Call 112</a>
+      <button class="btn outline" type="button" id="safeBtn">I am safe now (enter PIN)</button>
+    </div>
+  </section>
+</div>
+
+<!-- Trusted circle + safety settings. Owner: Person 3 -->
+<dialog id="circleDialog">
+  <h2>Your trusted circle</h2>
+  <ul class="contact-list" id="contactList"></ul>
+  <form id="contactForm" class="contact-form">
+    <input name="name" placeholder="Name, e.g. Mummy" required aria-label="Name">
+    <input name="phone" placeholder="WhatsApp number, e.g. 919876543210" inputmode="tel" aria-label="WhatsApp number">
+    <button class="btn primary sm" type="submit">Add to circle</button>
+  </form>
+  <h3>Safety settings</h3>
+  <label class="setting">Code word<input id="codeWordInput" maxlength="40"></label>
+  <label class="setting">Safe PIN<input id="pinInput" inputmode="numeric" maxlength="6" pattern="[0-9]{4,6}"></label>
+  <label class="setting check"><input type="checkbox" id="simulateInput"> Simulate the journey (for demos)</label>
+  <button class="btn outline" type="button" id="closeCircle">Done</button>
+</dialog>
+
+<!-- Safe PIN. Owner: Person 3 -->
+<dialog id="pinDialog">
+  <h2>Enter your safe PIN</h2>
+  <p class="sub">This tells your circle you are safe and stops the SOS.</p>
+  <form id="pinForm">
+    <input id="pinEntry" inputmode="numeric" maxlength="6" autocomplete="off" aria-label="Safe PIN" class="pin">
+    <p class="error" id="pinError" hidden>That PIN is not right. Try again.</p>
+    <button class="btn primary" type="submit">I am safe</button>
+    <button class="btn ghost" type="button" id="pinCancel">Keep SOS on</button>
+  </form>
+</dialog>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script type="module" src="/js/app.js"></script>
+</body>
+</html>

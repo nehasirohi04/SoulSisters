@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#F4F6F5">
+  <title>SoulSisters: live trip</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .track-map { height: 46vh; min-height: 260px; border-radius: 16px; overflow: hidden; border: 1px solid var(--line); margin: 16px 0 12px; }
+    .banner { border-radius: 14px; padding: 14px 16px; margin-top: 16px; font-size: 15px; line-height: 22px; }
+    .banner.alert { background: var(--sos); color: #fff; }
+    .banner.ok { background: var(--green-soft); color: var(--green); font-weight: 700; }
+    .track-status { font-weight: 700; color: var(--green); }
+    .track-status.stale { color: var(--sos); }
+  </style>
+</head>
+<body>
+  <!-- What a trusted contact sees. Owner: Person 3 -->
+  <div class="phone">
+    <section class="screen">
+      <header class="bar"><div class="logo">SoulSisters</div></header>
+      <h1 class="title sm" id="who">Loading trip</h1>
+      <p class="sub" id="route" style="margin-bottom:0"></p>
+      <div class="banner alert" id="sosBanner" hidden>
+        <strong>She raised an SOS.</strong> Call her now. If she doesn't answer, call 112 and share this location.
+      </div>
+      <div class="banner ok" id="okBanner" hidden>She has reached safely.</div>
+      <div class="track-map" id="map"></div>
+      <p class="track-status" id="status"></p>
+      <div class="grow"></div>
+      <a class="btn outline" id="mapsLink" target="_blank" rel="noopener" hidden>Open in Google Maps</a>
+      <a class="btn dark" href="tel:112" id="call112" hidden style="margin-top:10px">Call 112</a>
+    </section>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script type="module" src="/js/track.js"></script>
+</body>
+</html>
