@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in · SoulSisters</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/auth.css">
+</head>
+<body>
+<main class="auth">
+
+  <!-- A. Sign in -->
+  <section id="step-phone" class="step">
+    <div class="brand">SoulSisters</div>
+    <div class="logo" aria-hidden="true">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M3 20c0-3 2.2-5 5-5s5 2 5 5"/><path d="M11 20c0-3 2.2-5 5-5s5 2 5 5"/></svg>
+    </div>
+    <h1>No woman travels alone.</h1>
+    <p class="lead">Sign in with your mobile number to plan safer trips.</p>
+    <form id="phone-form" novalidate>
+      <label for="phone">Mobile number</label>
+      <div class="row">
+        <span class="prefix">+91</span>
+        <input id="phone" type="tel" inputmode="numeric" autocomplete="tel-national" maxlength="11" placeholder="98765 43210" required>
+      </div>
+      <p class="hint">We will send a 6-digit code by SMS.</p>
+      <p class="error" id="phone-error" role="alert"></p>
+      <button class="primary" type="submit">Send OTP</button>
+    </form>
+    <div class="spacer"></div>
+    <div class="note">Your number is never shown to other users.</div>
+  </section>
+
+  <!-- B. Enter OTP -->
+  <section id="step-otp" class="step" hidden>
+    <button class="back" type="button" data-go="phone" aria-label="Back">&larr;</button>
+    <h1>Enter the code</h1>
+    <p class="lead">Sent to <span id="otp-phone"></span>. <button class="link" type="button" data-go="phone">Change</button></p>
+    <p class="demo" id="demo-code" hidden></p>
+    <form id="otp-form" novalidate>
+      <label for="otp">6-digit code</label>
+      <input id="otp" class="otp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="------" required>
+      <p class="error" id="otp-error" role="alert"></p>
+      <button class="primary" type="submit">Verify</button>
+    </form>
+    <button class="link resend" type="button" id="resend" disabled>Resend code</button>
+  </section>
+
+  <!-- C. Verify identity -->
+  <section id="step-verify" class="step" hidden>
+    <p class="count">Step 1 of 2</p>
+    <h1>Verify it is you</h1>
+    <p class="lead">Every woman on SoulSisters is verified. This keeps travel together safe.</p>
+    <label for="name">Your first name</label>
+    <input id="name" type="text" autocomplete="given-name" maxlength="40" placeholder="Ananya">
+    <div class="card">
+      <strong>Link your ID</strong>
+      <span>Through DigiLocker. <em class="tag">Demo</em> Not connected yet.</span>
+    </div>
+    <div class="card">
+      <strong>Take a live selfie</strong>
+      <span>We match it with your ID photo. <em class="tag">Demo</em> Matching is not built yet.</span>
+      <div class="camera">
+        <video id="video" playsinline muted></video>
+        <canvas id="snap" hidden></canvas>
+        <div class="oval" aria-hidden="true"></div>
+      </div>
+      <button class="secondary" type="button" id="camera-btn">Open camera</button>
+    </div>
+    <p class="error" id="verify-error" role="alert"></p>
+    <button class="primary" type="button" id="verify-btn">Continue</button>
+  </section>
+
+  <!-- D. Trusted circle -->
+  <section id="step-circle" class="step" hidden>
+    <p class="count">Step 2 of 2</p>
+    <h1>Who should watch over you?</h1>
+    <p class="lead">Add family or friends. They get your live location only during a trip or SOS.</p>
+    <ul id="circle-list" class="list"></ul>
+    <form id="circle-form" class="card" novalidate>
+      <label for="c-name">Name</label>
+      <input id="c-name" type="text" maxlength="30" placeholder="Mummy">
+      <label for="c-phone">WhatsApp number</label>
+      <input id="c-phone" type="tel" inputmode="numeric" maxlength="11" placeholder="98765 43210">
+      <p class="error" id="circle-error" role="alert"></p>
+      <button class="secondary" type="submit">Add to circle</button>
+    </form>
+    <div class="spacer"></div>
+    <button class="primary" type="button" id="done-btn">Done, start using SoulSisters</button>
+    <p class="hint center">You can change this later in Settings.</p>
+  </section>
+
+</main>
+<script src="/js/auth.js"></script>
+</body>
+</html>

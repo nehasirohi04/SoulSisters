@@ -1,0 +1,56 @@
+/* Sign-in screens. Same colours as the main app design. */
+:root {
+  --bg: #F4F6F5;
+  --card: #FFFFFF;
+  --line: #E1E6E3;
+  --ink: #14201C;
+  --muted: #4A5852;
+  --teal: #0F5C55;
+  --teal-dark: #0A403B;
+  --soft: #DCEBE8;
+  --sos: #C2410C;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); font-family: Manrope, system-ui, sans-serif; }
+.auth { max-width: 430px; margin: 0 auto; min-height: 100vh; display: flex; }
+.step { flex: 1; display: flex; flex-direction: column; padding: 20px 24px 28px; }
+.step[hidden] { display: none; }
+.brand { font-size: 18px; font-weight: 800; height: 48px; display: flex; align-items: center; }
+.logo { margin-top: 40px; width: 64px; height: 64px; border-radius: 20px; background: var(--teal); display: flex; align-items: center; justify-content: center; }
+h1 { margin: 24px 0 8px; font-size: 28px; line-height: 34px; font-weight: 800; letter-spacing: -0.5px; }
+.lead { margin: 0 0 24px; font-size: 15px; line-height: 22px; color: var(--muted); }
+label { display: block; font-size: 13px; font-weight: 700; margin: 12px 0 8px; }
+input { width: 100%; height: 56px; padding: 0 16px; border-radius: 14px; border: 1px solid var(--line); background: var(--card); font: 600 16px Manrope, sans-serif; color: var(--ink); }
+input:focus { outline: none; border: 1.5px solid var(--teal); }
+.row { display: flex; gap: 8px; }
+.prefix { height: 56px; padding: 0 14px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); display: flex; align-items: center; font-weight: 600; }
+.otp { text-align: center; letter-spacing: 12px; font-size: 24px; }
+.hint { margin: 10px 0 0; font-size: 13px; color: var(--muted); }
+.center { text-align: center; }
+.error { min-height: 20px; margin: 8px 0 0; font-size: 13px; font-weight: 600; color: var(--sos); }
+.demo { margin: -12px 0 16px; padding: 10px 14px; border-radius: 12px; background: #FFF4E5; font-size: 14px; }
+button { font: inherit; cursor: pointer; }
+.primary { margin-top: 16px; height: 56px; width: 100%; border: 0; border-radius: 14px; background: var(--teal); color: #fff; font-size: 16px; font-weight: 700; }
+.primary:hover { background: var(--teal-dark); }
+.primary:disabled { opacity: 0.6; cursor: wait; }
+.secondary { margin-top: 12px; height: 48px; width: 100%; border-radius: 12px; border: 1.5px solid #C9D3CE; background: var(--card); color: var(--ink); font-weight: 600; }
+.link { border: 0; background: none; padding: 0; color: var(--teal); font-weight: 700; }
+.link:disabled { color: var(--muted); cursor: default; }
+.resend { margin-top: 16px; align-self: flex-start; min-height: 44px; }
+.back { width: 44px; height: 44px; border: 0; background: none; font-size: 22px; text-align: left; padding: 0; }
+.count { margin: 12px 0 0; font-size: 13px; font-weight: 600; color: var(--muted); }
+.card { margin-top: 12px; padding: 16px; border-radius: 16px; background: var(--card); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 4px; }
+.card span { font-size: 13px; line-height: 19px; color: var(--muted); }
+.card input { background: var(--bg); height: 48px; }
+.tag { font-style: normal; font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 6px; background: #FFF4E5; color: #7A3A06; }
+.camera { position: relative; margin-top: 12px; height: 200px; border-radius: 14px; background: var(--ink); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.camera video, .camera canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+.oval { position: relative; width: 120px; height: 150px; border-radius: 60px; border: 2.5px dashed #9FD3CC; }
+.list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.list li { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); }
+.list .av { width: 40px; height: 40px; border-radius: 20px; background: var(--soft); color: var(--teal); font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.list .who { flex: 1; display: flex; flex-direction: column; font-size: 13px; color: var(--muted); }
+.list .who b { font-size: 15px; color: var(--ink); }
+.list button { width: 44px; height: 44px; border: 0; background: none; color: var(--muted); font-size: 18px; }
+.spacer { flex: 1; min-height: 24px; }
+.note { padding: 12px 14px; border-radius: 12px; background: #E9EFED; font-size: 13px; color: #2E3B36; }
